@@ -7,6 +7,7 @@ const urlExist = require('url-exist');
 require('dotenv').config();
 
 const seenURLs = { };
+const seenImages = { };
 
 function getURL({link, parsedURL}) {
     if (link.startsWith(`${parsedURL.protocol}//`)) return link;
@@ -14,7 +15,7 @@ function getURL({link, parsedURL}) {
     else return `${parsedURL.href}${link}`;
 };
 
-async function crawl({ url, stay, images}) {
+async function crawl({ url, stay, images, toDownloadImages}) {
     if (seenURLs[url]) return; // already seen link
     seenURLs[url] = true; // now remembers url
     console.log(`crawling ${url}`);
@@ -36,11 +37,12 @@ async function crawl({ url, stay, images}) {
             .get();
 
         imageURLs.forEach(imageURL => {
-            fetch(getURL({ "link": imageURL, parsedURL })).then(async response => {
-                const filename = path.basename(imageURL);
-                const dest = fs.createWriteStream(`images/${filename}`);
-                await response.body.pipe(dest);
-            });
+            if (!seenImages[imageURL]) {
+                console.log(`image found: ${imageURL}`)
+                seenImages[imageURL] = true; // now remembers url
+                const newImageURL = getURL({ "link": imageURL, parsedURL })
+                if (toDownloadImages) downloadImage({ newImageURL, imageURL, parsedURL })
+            }
         });
     };
 
@@ -56,14 +58,26 @@ async function crawl({ url, stay, images}) {
             crawl({
                 url: newURL,
                 stay,
-                images
+                images,
+                toDownloadImages
             });
         };
+    });
+};
+
+function downloadImage({ newImageURL, imageURL, parsedURL }) {    
+    // console.log('downloading')
+    fetch(newImageURL).then(async response => {
+        const filename = path.basename(imageURL);
+        const dest = fs.createWriteStream(`images/${filename}`)
+        await response.body.pipe(dest);
+        // console.log(`done ${filename} : ${newImageURL}`)
     });
 };
 
 crawl({
     url: 'https://novapro.net/',
     stay: true,
-    images: false
+    images: true,
+    toDownloadImages: false
 });

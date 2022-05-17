@@ -5,15 +5,16 @@ Project created by Daniel Kravec, on May 17, 2022.
 This is a simple web scrapper, you can save images and see the process of getting every link in the website.
 
 ## Usage
-Setup on line 65-69.
+Setup on line 78-83.
 
 This lets you control what you want to crawl on the web.
 ```js
-65 | crawl({
-66 |    url: 'https://novapro.net',
-67 |    stay: true,
-68 |    images: false
-69 | });
+78 | crawl({
+79 |    url: 'https://novapro.net',
+80 |    stay: true,
+81 |    images: true,
+82 |    toDownloadImages: false
+83 | });
 ```
 ---
 
@@ -34,6 +35,8 @@ if true, it will look for and save images to a folder /images.
 
 if false, it will not look for and fetch images.
 
+This may not download all images found, and may also cause an issue.
+
 ---
 
 ## Version History
@@ -43,6 +46,11 @@ if false, it will not look for and fetch images.
 - save images.
 - make sure it stays on the same host.
 - checks if the link actually exists before trying to fetch.
+
+### 1.0.1 (2.2022.05.17) 
+- added option to download image (but still search for images)
+- seperated download image into a seperate function
+- changed order of saving 
 
 ## Found Bugs
 
@@ -63,6 +71,11 @@ trying to write a lot of images at once.
 Error: EISDIR: illegal operation on a directory, open 'images/'.
 
 Emitted 'error' event on WriteStream instance at:
+
+### 1.0.1 (2.2022.05.17) (unsolved) 
+
+program thinks some links dont exist
+
 
 ## Links used
 
