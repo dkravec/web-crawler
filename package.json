@@ -1,0 +1,26 @@
+{
+  "name": "web-scrapper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dkravec/web-scrapper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dkravec/web-scrapper/issues"
+  },
+  "homepage": "https://github.com/dkravec/web-scrapper#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.10",
+    "dotenv": "^16.0.1",
+    "mongoose": "^6.3.3",
+    "node-fetch": "^2.6.7",
+    "url-exist": "^2.0.2"
+  }
+}
