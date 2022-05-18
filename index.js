@@ -6,14 +6,16 @@ const urlParser = require('url');
 const urlExist = require('url-exist');
 require('dotenv').config();
 const mongoose = require('mongoose');
+const foundImageDataSchema = require('./schemas/found-images-schema');
 
-const startURL = 'https://novapro.net/';
+const startURL = 'https://novapro.net';
 const stay = true;
 const images = true;
 const toDownloadImages = false;
 const onePage = false;
 const useMongo = false;
 const mongoLink = process.env.MONGO_URL;
+const maxAmount = 500;
 
 if (useMongo) {
     mongoose.connect(mongoLink, {
@@ -24,6 +26,7 @@ if (useMongo) {
 
 const seenURLs = { };
 const seenImages = { };
+var currentAmount = 0;
 
 function getURL({link, parsedURL}) {
     if (link.startsWith(`https://`) || link.startsWith(`http://`) ) return link;
@@ -32,12 +35,29 @@ function getURL({link, parsedURL}) {
     else return `${parsedURL.href}${link}`;
 };
 
+function seperateURL({ link }) {
+    const sep = link.split(/[/]+/)
+    const protocol = sep[0]
+    const main = sep[1]
+    sep.splice(0,2)
+
+    if (!protocol.startsWith("http")) return { link: false, error : "no protocol", protocol, main, path: sep };
+    else if (main.includes("@")) return { link: false, error: "unwanted credentials", protocol, main, path: sep };
+    return { link: true, protocol, main, path: sep };
+};
+
 async function crawl({ url }) {
+    if (currentAmount > maxAmount) return console.log("finished")
+    else currentAmount++ 
+
     if (seenURLs[url]) return; // already seen link
     seenURLs[url] = true; // now remembers url
 
     if (onePage && startURL!=url) return console.log(`found link: ${url}`)
     else console.log(`crawling ${url}`);
+
+    const checkURL = seperateURL({link: url});
+    if (checkURL.error) return console.log(`-- error: ${checkURL?.error}`);
 
     const exists = await urlExist(url);
     if (!exists) return console.log(`-- error: link doesnt exist ${url}`);
@@ -58,7 +78,7 @@ async function crawl({ url }) {
 
         imageURLs.forEach(async imageURL => {
             const newImageURL = getURL({ "link": imageURL, parsedURL });
-            if (useMongo) await saveImageToMongo(imageURL, parsedURL);
+            if (useMongo) saveImageToMongo({url, imageURL: newImageURL, parsedURL});
             
             if (!seenImages[newImageURL]) {
                 seenImages[newImageURL] = true;
@@ -76,14 +96,9 @@ async function crawl({ url }) {
     links.forEach((link) => {
         const newURL = getURL({ link, parsedURL });
         const samehost = newURL.startsWith(getURL({link: '/', parsedURL}));
-
+       // console.log(`${link} : ${newURL} : ${url}`)
         if (!stay || stay && samehost) {
-            crawl({
-                url: newURL,
-                stay,
-                images,
-                toDownloadImages
-            });
+            crawl({ url: newURL });
         };
     });
 };
@@ -96,8 +111,35 @@ function downloadImage({ newImageURL, imageURL, parsedURL }) {
     });
 };
 
-async function saveImageToMongo({}) {
-    console.log('mock send to mongo')
-}
+async function saveImageToMongo({url, mainUrlParsed, imageURL, parsedURL}) {
+    // url: on which page image was found
+    // imageURL: url of image
+    // parsedURL: on which page image was found 
+
+    const imageURLParse = urlParser.parse(imageURL);
+    const filename = path.basename(imageURL);
+
+    const findImage = await foundImageDataSchema.findOne({ _id: imageURL });
+    if (!findImage) await foundImageDataSchema.create({ _id: imageURL, image: true, imageHost: imageURLParse.hostname, amountFound: 1, imageURL, imageName: filename});
+    else {
+        await foundImageDataSchema.findOneAndUpdate({ 
+            _id: imageURL
+        }, {
+            imageHost: imageURLParse.hostname,
+            amountFound: findImage.amountFound ? findImage.amountFound + 1 : 2,
+            //image: true,
+            //imageName: filename ? filename : 'help'
+            // $push: { foundInURLs: { url: url, mainHost: parsedURL.hostname}}
+        });
+    };
+
+    await foundImageDataSchema.findOneAndUpdate({
+        _id: imageURL,
+    }, {
+        $push: { foundInURLs: { url, mainHost: parsedURL.hostname }}
+    });
+
+    return;
+};
 
 crawl({ url: startURL });

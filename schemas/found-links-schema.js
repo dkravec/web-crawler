@@ -10,6 +10,11 @@ const reqNum = {
     required: true
 }
 
+const reqBool = {
+    type: Boolean,
+    required: true
+}
+
 const subLinkSchema = {
     _id: reqString,
     url: reqString,
@@ -19,19 +24,27 @@ const subLinkSchema = {
 const linksFoundSchema = {
     _id: reqString,
     url: reqString,
-    amountFound
+    amountFound: reqString
 }
-
+const foundInURLsSchema = {
+    _id: reqString,
+    url: reqString,
+    mainHost: reqString
+}
 const foundSearchDataSchema = mongoose.Schema({
     _id: reqString,
     mainHost: reqString,
     amountFound: reqNum,
+    image: reqBool,
+    imageName: reqString,
+    foundInURLs: [ foundInURLsSchema ],
+    
     // suburls
     sublinks: [ subLinkSchema ],
-    // images found on page
-    images: [ subLinkSchema ],
+    // _id pointing to foundimageshema
+    images: [ reqString ],
     // links found on page
     links: [ linksFoundSchema ],
 });
 
-module.exports = mongoose.model('found-search-data', foundSearchDataSchema);
+module.exports = mongoose.model('found-links-schema', foundSearchDataSchema);
