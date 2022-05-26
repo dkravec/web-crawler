@@ -5,18 +5,18 @@ Project created by Daniel Kravec, on May 17, 2022.
 This is a simple web scrapper, you can save images and see the process of getting every link in the website.
 
 ## Usage
-Setup on line 11-18
+Setup on line 12-19
 
 This lets you control what you want to crawl on the web.
 ```js
-11 | const startURL = 'https://novapro.net/';
-12 | const stay = true;
-13 | const images = true;
-14 | const toDownloadImages = false;
-15 | const onePage = false;
-16 | const useMongo = false;
-17 | const mongoLink = process.env.MONGO_URL;
-18 | const maxAmount = 500;
+12 | const startURL = 'https://novapro.net';
+13 | const stay = true;
+14 | const onePage = false;
+15 | const images = false;
+16 | const toDownloadImages = false;
+17 | const useMongo = false;
+18 | const mongoLink = process.env.MONGO_URL;
+19 | const maxAmount = 500;
 ```
 --- 
 | name | type | description | 
@@ -57,6 +57,13 @@ This lets you control what you want to crawl on the web.
 - you can now have a set maxAmount for amount of linksk to crawl
 - updated saveImageToMongo, startd using foundImageDataSchema, doesnt work 100% currently
 
+### 1.0.4 (5.2022.05.20) 
+- Now shows the timestamp of when each link is being crawled.
+- Now shows amount of links crawled.
+- Saves link to mongo
+- created function to save url and links (will redo)
+- added upsert to mongo image saving (so it saves the data properly)
+- everything isnt required in mongo schema.
 
 ## Found Bugs
 

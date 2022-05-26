@@ -7,15 +7,20 @@ const urlExist = require('url-exist');
 require('dotenv').config();
 const mongoose = require('mongoose');
 const foundImageDataSchema = require('./schemas/found-images-schema');
+const foundSearchDataSchema = require('./schemas/found-links-schema');
 
 const startURL = 'https://novapro.net';
 const stay = true;
-const images = true;
-const toDownloadImages = false;
 const onePage = false;
+const images = false;
+const toDownloadImages = false;
 const useMongo = false;
 const mongoLink = process.env.MONGO_URL;
 const maxAmount = 500;
+
+function checktime() { var d = new Date(); const timeMS = d.getTime(); return timeMS };
+
+var readyTime = checktime()
 
 if (useMongo) {
     mongoose.connect(mongoLink, {
@@ -53,8 +58,9 @@ async function crawl({ url }) {
     if (seenURLs[url]) return; // already seen link
     seenURLs[url] = true; // now remembers url
 
+    // console.log(seenURLs)
     if (onePage && startURL!=url) return console.log(`found link: ${url}`)
-    else console.log(`crawling ${url}`);
+    else console.log(`${currentAmount} ${checktime() - readyTime} crawling ${url}`);
 
     const checkURL = seperateURL({link: url});
     if (checkURL.error) return console.log(`-- error: ${checkURL?.error}`);
@@ -96,10 +102,11 @@ async function crawl({ url }) {
     links.forEach((link) => {
         const newURL = getURL({ link, parsedURL });
         const samehost = newURL.startsWith(getURL({link: '/', parsedURL}));
+
+        if (useMongo) saveLinkToMongo({ url: link, parsedURL, hostURL: url})
        // console.log(`${link} : ${newURL} : ${url}`)
-        if (!stay || stay && samehost) {
-            crawl({ url: newURL });
-        };
+        if (!stay || stay && samehost) crawl({ url: newURL });
+        else console.log("-- error: Out of domain. ");
     });
 };
 
@@ -110,6 +117,31 @@ function downloadImage({ newImageURL, imageURL, parsedURL }) {
         await response.body.pipe(dest);
     });
 };
+
+async function saveLinkToMongo({url, parsedURL, hostURL}) {
+    const newLinkParsed = urlParser.parse(url);
+    
+    const findLink = await foundSearchDataSchema.findOne({ _id: hostURL });
+    //console.log(findLink)
+    /*if (!findLink) {
+        await foundSearchDataSchema.create({ _id: hostURL, mainHost: parsedURL.hostname, amountFound: 0 })
+        await foundSearchDataSchema.findOneAndUpdate({
+            _id: hostURL,
+        }, {
+            $push: { sublinks: { url, mainHost: newLinkParsed.hostname}}
+        }, {
+            upsert: true
+        })
+    }*/
+
+    await foundSearchDataSchema.findOneAndUpdate({
+        _id: hostURL,
+    }, {
+        $push: { sublinks: { url, mainHost: newLinkParsed.hostname}}
+    }, {
+        upsert: true
+    })
+}
 
 async function saveImageToMongo({url, mainUrlParsed, imageURL, parsedURL}) {
     // url: on which page image was found
@@ -130,6 +162,8 @@ async function saveImageToMongo({url, mainUrlParsed, imageURL, parsedURL}) {
             //image: true,
             //imageName: filename ? filename : 'help'
             // $push: { foundInURLs: { url: url, mainHost: parsedURL.hostname}}
+        }, {
+            upsert: true
         });
     };
 

@@ -2,17 +2,17 @@ const mongoose = require('mongoose');
 
 const reqString = {
     type: String,
-    required: true
+    required: false
 }
 
 const reqNum = {
     type: Number,
-    required: true
+    required: false
 }
 
 const reqBool = {
     type: Boolean,
-    required: true
+    required: false
 }
 
 const subLinkSchema = {
@@ -26,11 +26,13 @@ const linksFoundSchema = {
     url: reqString,
     amountFound: reqString
 }
+
 const foundInURLsSchema = {
     _id: reqString,
     url: reqString,
     mainHost: reqString
 }
+
 const foundSearchDataSchema = mongoose.Schema({
     _id: reqString,
     mainHost: reqString,
