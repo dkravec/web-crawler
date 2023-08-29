@@ -8,15 +8,19 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const foundImageDataSchema = require('./schemas/found-images-schema');
 const foundSearchDataSchema = require('./schemas/found-links-schema');
+const config = require('./config.json');
 
-const startURL = 'https://novapro.net';
-const stay = true;
-const onePage = false;
-const images = false;
-const toDownloadImages = false;
-const useMongo = false;
+const {
+    startURL, 
+    stay,
+    onePage,
+    images, 
+    toDownloadImages, 
+    useMongo, 
+    maxAmount
+} = config;
+
 const mongoLink = process.env.MONGO_URL;
-const maxAmount = 500;
 
 function checktime() { var d = new Date(); const timeMS = d.getTime(); return timeMS };
 

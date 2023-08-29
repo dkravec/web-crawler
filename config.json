@@ -1,0 +1,9 @@
+{
+    "startURL" : "https://novapro.net",
+    "stay" : true,
+    "onePage" : false,
+    "images" : true,
+    "toDownloadImages" : true,
+    "useMongo" : false,
+    "maxAmount" : 500
+}

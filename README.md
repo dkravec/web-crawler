@@ -65,6 +65,10 @@ This lets you control what you want to crawl on the web.
 - added upsert to mongo image saving (so it saves the data properly)
 - everything isnt required in mongo schema.
 
+### 1.0.5 (6.2023.08.28) 
+- ungitignored /images (to be ignored again)
+- moved configuration to config.json
+
 ## Found Bugs
 
 ### 1.0 (1.2022.05.17) (unsolved)
