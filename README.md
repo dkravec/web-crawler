@@ -69,6 +69,9 @@ This lets you control what you want to crawl on the web.
 - ungitignored /images (to be ignored again)
 - moved configuration to config.json
 
+### 1.0.5 (7.2023.08.29) 
+- removed txt in /images
+
 ## Found Bugs
 
 ### 1.0 (1.2022.05.17) (unsolved)
