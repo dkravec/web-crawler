@@ -72,6 +72,9 @@ This lets you control what you want to crawl on the web.
 ### 1.0.5 (7.2023.08.29) 
 - removed txt in /images
 
+### 1.0.5 (8.2023.08.29) 
+- added /images/* files to gitignore
+
 ## Found Bugs
 
 ### 1.0 (1.2022.05.17) (unsolved)
